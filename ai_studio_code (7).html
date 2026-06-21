@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arapça Kelime Ezber Kartları & Eğitici Oyunlar</title>
+  <!-- Google Fonts: Inter (UI için) ve Tajawal (Arapça için) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            arabic: ['Tajawal', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 3D Flip Card Effect */
+    .perspective {
+      perspective: 1000px;
+    }
+    .preserve-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    /* Shaking animation for incorrect match */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .shake-animation {
+      animation: shake 0.3s ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-md shadow-indigo-100">
+          <i class="fa-solid fa-book-open text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg text-slate-900 leading-tight">Arapça Kelime Kartları</h1>
+          <p class="text-xs text-slate-500">İnteraktif Öğrenme, Test ve Eşleştirme Portalı</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
+        <button id="mode-flashcards-btn" onclick="switchMode('flashcards')" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-white text-indigo-600 shadow-sm">
+          <i class="fa-regular fa-clone mr-1.5"></i>Kelime Kartları
+        </button>
+        <button id="mode-quiz-btn" onclick="switchMode('quiz')" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-600 hover:text-slate-900">
+          <i class="fa-solid fa-list-check mr-1.5"></i>Test Modu
+        </button>
+        <button id="mode-matching-btn" onclick="switchMode('matching')" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-600 hover:text-slate-900">
+          <i class="fa-solid fa-puzzle-piece mr-1.5"></i>Eşleştirme Oyunu
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-grow grid grid-cols-1 lg:grid-cols-4 gap-6 w-full">
+    
+    <!-- Controls Sidebar -->
+    <aside class="lg:col-span-1 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm h-fit space-y-5">
+      <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+        <i class="fa-solid fa-sliders text-indigo-500"></i>
+        <h2 class="font-semibold text-slate-900">Çalışma Ayarları</h2>
+      </div>
+
+      <!-- Unit Selector -->
+      <div>
+        <label for="unit-select" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">ÜNİTE SEÇİMİ</label>
+        <select id="unit-select" onchange="onFilterChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="all">Tüm Üniteler (1 - 8)</option>
+          <option value="1">Ünite 1: Kişisel Bilgiler, Eğitim ve Hobiler</option>
+          <option value="2">Ünite 2: Aile, Akrabalar ve Belgeler</option>
+          <option value="3">Ünite 3: Üniversite ve Akademik Bölümler</option>
+          <option value="4">Ünite 4: İş Hayatı, Meslekler ve İlanlar</option>
+          <option value="5">Ünite 5: Zaman Sıklık Zarfları ve Rutinler</option>
+          <option value="6">Ünite 6: Günlük Rutinler ve Hayat Akışı</option>
+          <option value="7">Ünite 7: Yemekler, Malzemeler ve Restoran</option>
+          <option value="8">Ünite 8: Ev Tanıtımı, Eşyalar ve Bölümler</option>
+        </select>
+      </div>
+
+      <!-- Category Selector -->
+      <div>
+        <label for="category-select" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">KATEGORİ SEÇİMİ</label>
+        <select id="category-select" onchange="onFilterChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <option value="all">Tüm Kategoriler</option>
+          <option value="isimler">İsimler</option>
+          <option value="fiiller">Fiiller</option>
+          <option value="sifatlar">Sıfatlar, Zarflar ve Diğerleri</option>
+          <option value="kaliplar">Kalıplar ve İfadeler</option>
+        </select>
+      </div>
+
+      <!-- Direction Toggle -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">SORU YÖNÜ</label>
+        <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl">
+          <button id="dir-ar-tr-btn" onclick="setDirection('ar-tr')" class="py-2 text-xs font-medium rounded-lg text-center bg-white text-slate-800 shadow-sm">
+            Arapça ➔ Türkçe
+          </button>
+          <button id="dir-tr-ar-btn" onclick="setDirection('tr-ar')" class="py-2 text-xs font-medium rounded-lg text-center text-slate-600 hover:text-slate-900">
+            Türkçe ➔ Arapça
+          </button>
+        </div>
+      </div>
+
+      <!-- Info Card -->
+      <div class="bg-indigo-50/50 rounded-xl p-4 border border-indigo-100">
+        <div class="flex gap-2.5 items-start">
+          <i class="fa-solid fa-circle-info text-indigo-500 mt-0.5"></i>
+          <div>
+            <h4 class="text-xs font-semibold text-indigo-900">İstatistikler</h4>
+            <p id="pool-count-text" class="text-xs text-indigo-700 mt-1">Yükleniyor...</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Interactive Work Area -->
+    <section class="lg:col-span-3 flex flex-col gap-6">
+
+      <!-- Alert when pool is empty -->
+      <div id="empty-state" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center my-auto">
+        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-4xl mb-3"></i>
+        <h3 class="font-bold text-amber-950 text-lg">Seçilen kriterlerde kelime bulunamadı</h3>
+        <p class="text-sm text-amber-700 mt-1">Lütfen ünite veya kategori filtrelerinizi değiştirerek tekrar deneyiniz.</p>
+      </div>
+
+      <!-- MOD 1: FLASHCARDS VIEW -->
+      <div id="flashcards-view" class="space-y-6">
+        <!-- Interactive Card Space -->
+        <div class="flex justify-center items-center py-6">
+          <div class="w-full max-w-xl aspect-[1.6/1] perspective cursor-pointer" onclick="toggleCardFlip()">
+            <div id="flashcard" class="relative w-full h-full duration-500 transform-style-3d preserve-3d shadow-xl rounded-3xl border border-slate-100">
+              
+              <!-- Front Side -->
+              <div class="absolute inset-0 w-full h-full backface-hidden bg-white rounded-3xl p-8 flex flex-col justify-between items-center text-center">
+                <span class="text-xs font-semibold uppercase tracking-widest text-slate-400" id="card-front-type">KART ÖNÜ</span>
+                <div class="my-auto">
+                  <h3 id="card-front-text" class="text-4xl md:text-5xl font-bold font-arabic leading-relaxed text-slate-800 py-4">...</h3>
+                </div>
+                <span class="text-xs text-indigo-500 bg-indigo-50 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
+                  <i class="fa-solid fa-rotate"></i> Çevirmek için tıkla
+                </span>
+              </div>
+
+              <!-- Back Side -->
+              <div class="absolute inset-0 w-full h-full backface-hidden bg-indigo-900 rounded-3xl p-8 flex flex-col justify-between items-center text-center rotate-y-180">
+                <span class="text-xs font-semibold uppercase tracking-widest text-indigo-300" id="card-back-type">ANLAMI</span>
+                <div class="my-auto">
+                  <h3 id="card-back-text" class="text-2xl md:text-3xl font-semibold text-white px-2">...</h3>
+                </div>
+                <span class="text-xs text-indigo-200 bg-indigo-950/50 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5">
+                  <i class="fa-solid fa-rotate"></i> Çevirmek için tıkla
+                </span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress and Navigation Controls -->
+        <div class="bg-white rounded-2xl p-4 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-2">
+            <button onclick="shuffleFlashcards()" class="p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors" title="Karıştır">
+              <i class="fa-solid fa-shuffle text-sm"></i>
+            </button>
+            <div class="text-sm font-medium text-slate-600">
+              Kart: <span id="card-index-current">0</span> / <span id="card-index-total">0</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 w-full sm:w-auto">
+            <button onclick="prevCard()" class="flex-1 sm:flex-none px-5 py-2.5 border border-slate-200 hover:bg-slate-50 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-chevron-left text-xs"></i> Önceki
+            </button>
+            <button onclick="nextCard()" class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all shadow-md shadow-indigo-100 flex items-center justify-center gap-2">
+              Sonraki <i class="fa-solid fa-chevron-right text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOD 2: QUIZ VIEW -->
+      <div id="quiz-view" class="hidden space-y-6">
+        <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-8">
+          
+          <!-- Score & Progress Header -->
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div class="space-y-1">
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">İlerleme</p>
+              <div class="flex items-center gap-2">
+                <div class="w-24 bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div id="quiz-progress-bar" class="bg-indigo-600 h-full w-0 transition-all duration-300"></div>
+                </div>
+                <span class="text-xs font-bold text-slate-600" id="quiz-progress-text">0/10</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Doğru Oranı</p>
+              <span class="text-sm font-bold text-emerald-600" id="quiz-score-text">0 Doğru</span>
+            </div>
+          </div>
+
+          <!-- Question Display -->
+          <div class="text-center py-6 space-y-3">
+            <span class="text-xs font-semibold text-indigo-500 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-wider">Soru</span>
+            <h3 id="quiz-question-word" class="text-3xl md:text-4xl font-bold leading-relaxed text-slate-900 font-arabic">...</h3>
+            <p class="text-xs text-slate-400">Yukarıdaki kelimenin doğru karşılığı hangisidir?</p>
+          </div>
+
+          <!-- Multiple Choices Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="quiz-choices-container">
+            <!-- Dynamic Buttons will be injected here -->
+          </div>
+
+          <!-- Controls / Next Button -->
+          <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+            <button onclick="restartQuiz()" class="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl text-sm font-medium transition-all">
+              <i class="fa-solid fa-arrow-rotate-left mr-1.5"></i> Testi Yenile
+            </button>
+            <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-all shadow-md shadow-indigo-100">
+              Sıradaki Soru <i class="fa-solid fa-arrow-right ml-1.5"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MOD 3: MATCHING VIEW -->
+      <div id="matching-view" class="hidden space-y-6">
+        <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="font-bold text-slate-900">Kelime Eşleştirme Oyunu</h3>
+              <p class="text-xs text-slate-500">Aynı anlama gelen Arapça ve Türkçe kelimeleri birbiriyle eşleştirin.</p>
+            </div>
+            <button onclick="initMatchingGame()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold tracking-wide transition-all shadow-md shadow-indigo-100 whitespace-nowrap self-start">
+              <i class="fa-solid fa-shuffle mr-1.5"></i> Yeni Oyun Başlat
+            </button>
+          </div>
+
+          <!-- Grid Board for Cards -->
+          <div id="matching-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4 min-h-[300px]">
+            <!-- Matching Cards will be injected here -->
+          </div>
+
+          <!-- Win State Overlay -->
+          <div id="matching-win-screen" class="hidden bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center">
+            <i class="fa-solid fa-trophy text-emerald-500 text-4xl mb-3"></i>
+            <h4 class="font-bold text-emerald-950 text-lg">Tebrikler, Hepsini Eşleştirdiniz!</h4>
+            <p class="text-xs text-emerald-700 mt-1">Harika bir eşleştirme performansı çıkardınız.</p>
+            <button onclick="initMatchingGame()" class="mt-4 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-all shadow-sm">
+              Tekrar Oyna
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
+      <p>© 2025 Arapça Kelime Ezber Platformu. Tüm hakları saklıdır.</p>
+      <p class="flex items-center gap-1.5">
+        <span>Geliştirici Dostu Öğrenim Arabirimi</span>
+        <i class="fa-solid fa-circle text-[4px] text-slate-300"></i>
+        <a href="https://github.com" target="_blank" class="hover:text-indigo-600 transition-colors">GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- DATABASE SCRIPT -->
+  <script>
+    // Entegre Edilen Sözlük Dosyası
+    const database = {
+      "uniteler": [
+        {
+          "unite_no": 1,
+          "unite_adi": "Kişisel Bilgiler, Eğitim ve Hobiler",
+          "sayfa_no": [23, 112],
+          "icerik": {
+            "isimler": [
+              { "arapca": "هواية", "turkce": "Hobi" },
+              { "arapca": "هوايات", "turkce": "Hobiler" },
+              { "arapca": "السكن", "turkce": "Barınma / Konut" },
+              { "arapca": "لغة", "turkce": "Dil" },
+              { "arapca": "لغات", "turkce": "Diller" },
+              { "arapca": "جملة", "turkce": "Cümle" },
+              { "arapca": "سؤال", "turkce": "Soru" },
+              { "arapca": "أسئلة", "turkce": "Sorular" },
+              { "arapca": "الابتدائية", "turkce": "İlkokul" },
+              { "arapca": "الإعدادية", "turkce": "Ortaokul" },
+              { "arapca": "الثانوية", "turkce": "Lise" },
+              { "arapca": "الخط", "turkce": "Yazı / Hat sanatı" },
+              { "arapca": "مهمة", "turkce": "Görev / Misyon" },
+              { "arapca": "ولد", "turkce": "Erkek çocuk" },
+              { "arapca": "أولاد", "turkce": "Çocuklar" },
+              { "arapca": "التصوير", "turkce": "Fotoğrafçılık" },
+              { "arapca": "الرسم", "turkce": "Resim" },
+              { "arapca": "السباحة", "turkce": "Yüzme" },
+              { "arapca": "القراءة", "turkce": "Okuma" }
+            ],
+            "fiiller": [
+              { "arapca": "يَحْتَاجُ إِلَى", "turkce": "İhtiyaç duyuyor" },
+              { "arapca": "يَعْرِفُ", "turkce": "Biliyor / Tanıyor" },
+              { "arapca": "يَتَعَلَّمُ", "turkce": "Öğreniyor" },
+              { "arapca": "يُفَضِّلُ", "turkce": "Tercih ediyor" },
+              { "arapca": "يَبْحَثُ عَنْ", "turkce": "Arıyor / Araştırıyor" },
+              { "arapca": "يُرِيدُ أَنْ", "turkce": "İstiyor" }
+            ],
+            "sifatlar_ve_zarflar": [
+              { "arapca": "مفيد", "turkce": "Faydalı" },
+              { "arapca": "بعض", "turkce": "Bazı / Biraz" },
+              { "arapca": "جميل", "turkce": "Güzel" }
+            ],
+            "kaliplar": [
+              { "arapca": "يجب أن", "turkce": "Gerekir / -malı, -meli" },
+              { "arapca": "ليس عندي", "turkce": "Bende yok" },
+              { "arapca": "بشكل جيد", "turkce": "İyi bir şekilde" },
+              { "arapca": "بسرعة", "turkce": "Hızlıca" },
+              { "arapca": "أفضل اللحم على...", "turkce": "Eti ...'ye tercih ederim" }
+            ]
+          }
+        },
+        {
+          "unite_no": 2,
+          "unite_adi": "Aile, Akrabalar ve Belgeler",
+          "sayfa_no": [13, 14, 15, 16],
+          "icerik": {
+            "isimler": [
+              { "arapca": "والد", "turkce": "Baba" },
+              { "arapca": "والدة", "turkce": "Anne" },
+              { "arapca": "ابن", "turkce": "Erkek evlat" },
+              { "arapca": "ابنة", "turkce": "Kız evlat" },
+              { "arapca": "أبناء", "turkce": "Erkek evlatlar / Oğullar" },
+              { "arapca": "بنات", "turkce": "Kız evlatlar / Kızlar" },
+              { "arapca": "عم", "turkce": "Amca" },
+              { "arapca": "عمة", "turkce": "Hala" },
+              { "arapca": "أعمام", "turkce": "Amcalar" },
+              { "arapca": "عمات", "turkce": "Halalar" },
+              { "arapca": "خال", "turkce": "Dayı" },
+              { "arapca": "خالة", "turkce": "Teyze" },
+              { "arapca": "أخوال", "turkce": "Dayılar" },
+              { "arapca": "خالات", "turkce": "Teyzeler" },
+              { "arapca": "حفيد", "turkce": "Erkek torun" },
+              { "arapca": "حفيدة", "turkce": "Kız torun" },
+              { "arapca": "أحفاد", "turkce": "Torunlar" },
+              { "arapca": "حفيدات", "turkce": "Kız torunlar" },
+              { "arapca": "أخ", "turkce": "Erkek kardeş" },
+              { "arapca": "أخت", "turkce": "Kız kardeş" },
+              { "arapca": "إخوة", "turkce": "Erkek kardeşler" },
+              { "arapca": "أخوات", "turkce": "Kız kardeşler" },
+              { "arapca": "جد", "turkce": "Dede" },
+              { "arapca": "جدة", "turkce": "Büyükanne / Anneanne / Babaanne" },
+              { "arapca": "زوج", "turkce": "Karı / Koca / Eş" },
+              { "arapca": "زوجة", "turkce": "Karı / Eş" },
+              { "arapca": "أقرباء", "turkce": "Akrabalar" },
+              { "arapca": "قريب", "turkce": "Akraba / Yakın" },
+              { "arapca": "صورة", "turkce": "Fotoğraf / Resim" },
+              { "arapca": "صور", "turkce": "Fotoğraflar" },
+              { "arapca": "جواز السفر", "turkce": "Pasaport" },
+              { "arapca": "جوازات السفر", "turkce": "Pasaportlar" },
+              { "arapca": "نسخة", "turkce": "Kopya / Nüsha" },
+              { "arapca": "نسخ", "turkce": "Kopyalar" },
+              { "arapca": "تاجر", "turkce": "Tüccar / Esnaf" },
+              { "arapca": "تجار", "turkce": "Tüccarlar" },
+              { "arapca": "سفير", "turkce": "Büyükelçi / Elçi" }
+            ],
+            "fiiller": [
+              { "arapca": "يَعِيشُ فِي", "turkce": "Yaşıyor" },
+              { "arapca": "يَسْكُنُ فِي", "turkce": "İkamet ediyor" }
+            ],
+            "sifatlar_ve_kaliplar": [
+              { "arapca": "كامل", "turkce": "Tam / Eksiksiz" },
+              { "arapca": "مطلوب", "turkce": "İstenen / Aranan" },
+              { "arapca": "مسرور", "turkce": "Memnun / Sevinçli" },
+              { "arapca": "كلهم", "turkce": "Onların hepsi" },
+              { "arapca": "دون = بلا", "turkce": "-sız / -siz / Olmadan" }
+            ]
+          }
+        },
+        {
+          "unite_no": 3,
+          "unite_adi": "Üniversite ve Akademik Bölümler",
+          "sayfa_no": [13, 17],
+          "icerik": {
+            "isimler": [
+              { "arapca": "الحقوق", "turkce": "Hukuk" },
+              { "arapca": "التاريخ", "turkce": "Tarih" },
+              { "arapca": "الطب", "turkce": "Tıp" },
+              { "arapca": "علم الاجتماع", "turkce": "Sosyoloji" },
+              { "arapca": "التربية والتعليم", "turkce": "Eğitim Bilimleri / Öğretim" },
+              { "arapca": "الأدب", "turkce": "Edebiyat" },
+              { "arapca": "الجغرافيا", "turkce": "Coğrafya" },
+              { "arapca": "الهندسة", "turkce": "Mühendislik" },
+              { "arapca": "الاقتصاد", "turkce": "İktisat" },
+              { "arapca": "علم النفس", "turkce": "Psikoloji" },
+              { "arapca": "الشريعة الإسلامية", "turkce": "İslam Hukuku / İlahiyat" },
+              { "arapca": "الرياضيات", "turkce": "Matematik" },
+              { "arapca": "الفلسفة", "turkce": "Felsefe" },
+              { "arapca": "الإرشاد النفسي", "turkce": "Psikolojik Danışmanlık" },
+              { "arapca": "قسم", "turkce": "Bölüm" },
+              { "arapca": "أقسام", "turkce": "Bölümler" },
+              { "arapca": "مركز", "turkce": "Merkez" },
+              { "arapca": "مراكز", "turkce": "Merkezler" },
+              { "arapca": "جنسية", "turkce": "Milliyet / Vatandaşlık" },
+              { "arapca": "محادثة", "turkce": "Konuşma / Pratik" },
+              { "arapca": "مستوى", "turkce": "Seviye" },
+              { "arapca": "اختصاص", "turkce": "Uzmanlık alanı" },
+              { "arapca": "نشاط", "turkce": "Etkinlik / Aktivite" }
+            ],
+            "fiiller": [
+              { "arapca": "يَدْرُسُ", "turkce": "Okuyor / Eğitim görüyor" },
+              { "arapca": "يَصِلُ إِلَى", "turkce": "Ulaşıyor" }
+            ],
+            "sifatlar": [
+              { "arapca": "نشيط", "turkce": "Aktif / Çalışkan" },
+              { "arapca": "مناسب", "turkce": "Uygun" },
+              { "arapca": "ممتع", "turkce": "Eğlenceli" },
+              { "arapca": "مريح", "turkce": "Rahat" }
+            ]
+          }
+        },
+        {
+          "unite_no": 4,
+          "unite_adi": "İş Hayatı, Meslekler ve İlanlar",
+          "sayfa_no": [38],
+          "icerik": {
+            "isimler": [
+              { "arapca": "مهنة", "turkce": "Meslek" },
+              { "arapca": "مهن", "turkce": "Meslekler" },
+              { "arapca": "دوام كامل", "turkce": "Tam zamanlı" },
+              { "arapca": "دوام جزئي", "turkce": "Yarı zamanlı / Part-time" },
+              { "arapca": "مرضى", "turkce": "Hastalar" },
+              { "arapca": "ممرض / ممرضة", "turkce": "Hemşire" },
+              { "arapca": "عامل بناء", "turkce": "İnşaat işçisi" },
+              { "arapca": "خبرة", "turkce": "Deneyim / Tecrübe" },
+              { "arapca": "راتب", "turkce": "Maaş" },
+              { "arapca": "طباخ", "turkce": "Aşçı" },
+              { "arapca": "سكرتير / سكرتيرة", "turkce": "Sekreter" },
+              { "arapca": "مستشفى", "turkce": "Hastane" },
+              { "arapca": "شركة", "turkce": "Şirket" },
+              { "arapca": "نادل", "turkce": "Garson" },
+              { "arapca": "عطلة", "turkce": "Tatil" },
+              { "arapca": "مترجم", "turkce": "Tercüman" },
+              { "arapca": "طبيب", "turkce": "Doktor" },
+              { "arapca": "مهندس", "turkce": "Mühendis" },
+              { "arapca": "صيدلاني", "turkce": "Eczacı" },
+              { "arapca": "محامٍ", "turkce": "Avukat" },
+              { "arapca": "طيار", "turkce": "Pilot" },
+              { "arapca": "محاسب", "turkce": "Muhasebeci" }
+            ],
+            "fiiller": [
+              { "arapca": "يَحْتَاجُ إِلَى", "turkce": "İhtiyaç duyuyor" },
+              { "arapca": "يَبْحَثُ عَنْ", "turkce": "Arıyor" },
+              { "arapca": "يَعْمَلُ", "turkce": "Çalışıyor" }
+            ],
+            "sifatlar_ve_zarflar": [
+              { "arapca": "طويل", "turkce": "Uzun" },
+              { "arapca": "قصير", "turkce": "Kısa" },
+              { "arapca": "ماهر", "turkce": "Usta / Becerikli" },
+              { "arapca": "على الأقل", "turkce": "En azından" }
+            ]
+          }
+        },
+        {
+          "unite_no": 5,
+          "unite_adi": "Zaman Sıklık Zarfları ve Rutin Aktiviteler",
+          "sayfa_no": [53, 85, 86],
+          "icerik": {
+            "sıklık_dereceleri": [
+              { "arapca": "دائماً", "turkce": "Daima / Her zaman (%100)" },
+              { "arapca": "غالباً", "turkce": "Çoğunlukla (%80)" },
+              { "arapca": "عادةً", "turkce": "Genellikle (%70)" },
+              { "arapca": "أحياناً", "turkce": "Bazen (%50)" },
+              { "arapca": "نادراً", "turkce": "Nadiren (%10)" },
+              { "arapca": "أبداً", "turkce": "Asla / Hiçbir zaman (%0)" }
+            ],
+            "zaman_zarfları": [
+              { "arapca": "يومياً = كل يوم", "turkce": "Günlük / Her gün" },
+              { "arapca": "أسبوعياً = كل أسبوع", "turkce": "Haftalık / Her hafta" },
+              { "arapca": "شهرياً = كل شهر", "turkce": "Aylık / Her ay" },
+              { "arapca": "سنوياً = كل سنة", "turkce": "Yıllık / Her yıl" },
+              { "arapca": "تقريباً", "turkce": "Yaklaşık olarak" },
+              { "arapca": "فقط", "turkce": "Sadece" },
+              { "arapca": "معاً", "turkce": "Birlikte" },
+              { "arapca": "من جديد", "turkce": "Yeniden / Baştan" }
+            ],
+            "isimler": [
+              { "arapca": "مقهى", "turkce": "Kafe" },
+              { "arapca": "أغنية", "turkce": "Şarkı" },
+              { "arapca": "أغاني", "turkce": "Şarkılar" },
+              { "arapca": "مقال", "turkce": "Makale" },
+              { "arapca": "مقالات", "turkce": "Makaleler" },
+              { "arapca": "لعبة", "turkce": "Oyun" },
+              { "arapca": "ألعاب", "turkce": "Oyunlar" },
+              { "arapca": "زبون", "turkce": "Müşteri" },
+              { "arapca": "زبائن", "turkce": "Müşteriler" },
+              { "arapca": "نصيحة", "turkce": "Tavsiye" },
+              { "arapca": "نصائح", "turkce": "Tavsiyeler" },
+              { "arapca": "مرة", "turkce": "Kez / Defa" },
+              { "arapca": "مرات", "turkce": "Kezler / Defalar" }
+            ],
+            "fiiller": [
+              { "arapca": "يُشَاهِدُ", "turkce": "İzliyor / Seyrediyor" },
+              { "arapca": "يَأْخُذُ", "turkce": "Alıyor" },
+              { "arapca": "يُعْطِي", "turkce": "Veriyor" },
+              { "arapca": "يَخْرُجُ مِنْ", "turkce": "Çıkıyor" },
+              { "arapca": "يَدْخُلُ إِلَى", "turkce": "Giriyor" },
+              { "arapca": "يَرْجِعُ", "turkce": "Dönüyor" },
+              { "arapca": "يَذْهَبُ إِلَى", "turkce": "Gidiyor" },
+              { "arapca": "يُسَاعِدُ", "turkce": "Yardım ediyor" },
+              { "arapca": "يَسْتَمِعُ إِلَى", "turkce": "Dinliyor" },
+              { "arapca": "يَتَحَدَّثُ مَعَ / عَنْ", "turkce": "Konuşuyor" },
+              { "arapca": "يَلْعَبُ بِـ", "turkce": "Oyunu oynuyor" },
+              { "arapca": "يَقْضِي", "turkce": "Vakit geçiriyor" }
+            ],
+            "sifatlar": [
+              { "arapca": "هادئ", "turkce": "Sakin" },
+              { "arapca": "مريح", "turkce": "Rahat" }
+            ]
+          }
+        },
+        {
+          "unite_no": 6,
+          "unite_adi": "Günlük Rutinler ve Hayat Akışı",
+          "sayfa_no": [85, 86],
+          "icerik": {
+            "görsel_akış_fiilleri": [
+              { "arapca": "يَسْتَيْقِZُ / يَصْحُو", "turkce": "Uyanıyor" },
+              { "arapca": "يَنْهَضُ", "turkce": "Kalkıyor (Yataktan)" },
+              { "arapca": "يَغْسِلُ", "turkce": "Yıkıyor (Yüzünü/Elini)" },
+              { "arapca": "يَتَوَضَّأُ", "turkce": "Abdest alıyor" },
+              { "arapca": "يُنَظِّفُ", "turkce": "Temizliyor (Dişlerini)" },
+              { "arapca": "يُصَلِّي", "turkce": "Namaz kılıyor" },
+              { "arapca": "يَسْتَحِمُّ", "turkce": "Banyo yapıyor" },
+              { "arapca": "يَرْجِعُ", "turkce": "Dönüyor (Eve)" },
+              { "arapca": "يَلْبَسُ", "turkce": "Giyiniyor" },
+              { "arapca": "يَقْرَأُ", "turkce": "Okuyor" },
+              { "arapca": "يَتَنَاوَلُ", "turkce": "Yemek yiyor / Kahvaltı yapıyor" },
+              { "arapca": "يَحْضُرُ", "turkce": "Derse katılıyor" },
+              { "arapca": "يَسْتَرِيحُ", "turkce": "Dinleniyor" },
+              { "arapca": "يَعْمَلُ", "turkce": "Çalışıyor" },
+              { "arapca": "يَذْهَبُ إِلَى", "turkce": "Gidiyor" },
+              { "arapca": "يَشْرَبُ", "turkce": "İçiyor" },
+              { "arapca": "يُشَاهِدُ", "turkce": "İzliyor" },
+              { "arapca": "يَدْرُسُ", "turkce": "Ders çalışıyor" },
+              { "arapca": "يَرْكَبُ", "turkce": "Otobüse/Arabaya biniyor" },
+              { "arapca": "يَنْتَظِرُ", "turkce": "Bekliyor" },
+              { "arapca": "يَتَكَلَّمُ", "turkce": "Konuşuyor" },
+              { "arapca": "يَجْلِسُ عَلَى", "turkce": "Oturuyor" },
+              { "arapca": "يَنْزلُ مِنْ", "turkce": "İniyor" },
+              { "arapca": "يَنَامُ", "turkce": "Uyuyor" },
+              { "arapca": "يَدْخُلُ إِلَى", "turkce": "Giriyor" },
+              { "arapca": "يَخْرُجُ مِنْ", "turkce": "Çıkıyor" },
+              { "arapca": "يَلْعَبُ", "turkce": "Oynuyor" },
+              { "arapca": "يَصِلُ إِلَى", "turkce": "Varıyor / Ulaşıyor" }
+            ]
+          }
+        },
+        {
+          "unite_no": 7,
+          "unite_adi": "Yemekler, Malzemeler ve Lokantada Sipariş",
+          "sayfa_no": [91, 103, 112],
+          "icerik": {
+            "isimler": [
+              { "arapca": "خضار", "turkce": "Sebze" },
+              { "arapca": "زيت", "turkce": "Yağ" },
+              { "arapca": "بهارات", "turkce": "Baharat" },
+              { "arapca": "ثوم", "turkce": "Sarımsak" },
+              { "arapca": "ملح", "turkce": "Tuz" },
+              { "arapca": "نعناع", "turkce": "Nane" },
+              { "arapca": "وعاء", "turkce": "Kap / Kase" },
+              { "arapca": "سلطة", "turkce": "Salata" },
+              { "arapca": "سمك", "turkce": "Balık" },
+              { "arapca": "طماطم", "turkce": "Domates" },
+              { "arapca": "بصل", "turkce": "Soğan" },
+              { "arapca": "قطعة / قطع", "turkce": "Parça / Dilim" },
+              { "arapca": "لبن", "turkce": "Yoğurt / Ayran" },
+              { "arapca": "نوع / أنواع", "turkce": "Çeşit / Çeşitler" },
+              { "arapca": "خيار", "turkce": "Salatalık" },
+              { "arapca": "خس", "turkce": "Marul" },
+              { "arapca": "فرن", "turkce": "Fırın" },
+              { "arapca": "مائدة", "turkce": "Sofra / Masa" },
+              { "arapca": "أرز", "turkce": "Pirinç" },
+              { "arapca": "دجاج", "turkce": "Tavuk" },
+              { "arapca": "بقدونس", "turkce": "Maydanoz" },
+              { "arapca": "خل", "turkce": "Sirke" },
+              { "arapca": "زيتون", "turkce": "Zeytin" },
+              { "arapca": "خبز", "turkce": "Ekmek" },
+              { "arapca": "طعم", "turkce": "Tat / Lezzet" },
+              { "arapca": "ملعقة", "turkce": "Kaşık" },
+              { "arapca": "لحم", "turkce": "Et" },
+              { "arapca": "مقبلات", "turkce": "Mezeler" },
+              { "arapca": "مكسرات", "turkce": "Kuruyemiş" },
+              { "arapca": "باذنجان", "turkce": "Patlıcan" },
+              { "arapca": "فستق", "turkce": "Fıstık" },
+              { "arapca": "سماق", "turkce": "Sumak" },
+              { "arapca": "طاقة", "turkce": "Enerji" },
+              { "arapca": "طحينة", "turkce": "Tahin" },
+              { "arapca": "صلصة", "turkce": "Sos" },
+              { "arapca": "مخلل", "turkce": "Turşu" },
+              { "arapca": "قطر", "turkce": "Şerbet" },
+              { "arapca": "الحساب", "turkce": "Hesap" },
+              { "arapca": "حجز", "turkce": "Rezervasyon" }
+            ],
+            "fiiller": [
+              { "arapca": "يَقْطَعُ", "turkce": "Kesiyor / Dilimliyor" },
+              { "arapca": "يُحَضِّرُ", "turkce": "Hazırlıyor" },
+              { "arapca": "يَغْسِلُ", "turkce": "Yıkıyor" },
+              { "arapca": "يَضَعُ فِي", "turkce": "İçine koyuyor" },
+              { "arapca": "يَطْبُخُ", "turkce": "Pişiriyor" },
+              { "arapca": "يُقَدِّمُ", "turkce": "Sunuyor / İkram ediyor" },
+              { "arapca": "يُضِيفُ إِلَى", "turkce": "Ekleme yapıyor" },
+              { "arapca": "يَنْضَجُ", "turkce": "Pişiyor / Olgunlaşıyor" },
+              { "arapca": "يَخْلِطُ", "turkce": "Karıştırıyor" },
+              { "arapca": "يَطْلُبُ", "turkce": "Sipariş veriyor / İstiyor" },
+              { "arapca": "يَظُنُّ", "turkce": "Sanıyor / Tahmin ediyor" },
+              { "arapca": "يَشْوِي", "turkce": "Izgara yapıyor / Közlüyor" },
+              { "arapca": "يَحْجِزُ", "turkce": "Rezervasyon yapıyor" }
+            ],
+            "sifatlar": [
+              { "arapca": "مشوي", "turkce": "Izgara" },
+              { "arapca": "مسلوق", "turkce": "Haşlanmış" },
+              { "arapca": "صحي", "turkce": "Sağlıklı" },
+              { "arapca": "شبعان", "turkce": "Tok" },
+              { "arapca": "جائع", "turkce": "Aç" },
+              { "arapca": "مقلي", "turkce": "Kızarmış" },
+              { "arapca": "خفيف", "turkce": "Hafif" },
+              { "arapca": "طازج", "turkce": "Taze" },
+              { "arapca": "مُفلفler", "turkce": "Baharatlı" },
+              { "arapca": "حارّ", "turkce": "Acı" }
+            ],
+            "kaliplar": [
+              { "arapca": "الطبق الرئيسي", "turkce": "Ana yemek" },
+              { "arapca": "قائمة الطعام", "turkce": "Menü" },
+              { "arapca": "على النار", "turkce": "Ateşin üzerinde" },
+              { "arapca": "يعطيك العافية", "turkce": "Kolay gelsin" },
+              { "arapca": "الله يعافيك", "turkce": "Allah sana da sağlık versin" },
+              { "arapca": "لو سمحت", "turkce": "Lütfen" },
+              { "arapca": "الاسم الكريم؟", "turkce": "İsminiz nedir? (Nazikçe)" },
+              { "arapca": "حضرتك", "turkce": "Zat-ı aliniz / Siz" },
+              { "arapca": "أستاذ", "turkce": "Hoca / Efendi" },
+              { "arapca": "بعد إذنك", "turkce": "İzninizle" },
+              { "arapca": "الكثير من", "turkce": "Pek çok" },
+              { "arapca": "القليل من", "turkce": "Az miktarda" },
+              { "arapca": "وجبات سريعة", "turkce": "Hızlı yemek / Fast-food" }
+            ]
+          }
+        },
+        {
+          "unite_no": 8,
+          "unite_adi": "Ev Tanıtımı, Eşyalar ve Bölümler",
+          "sayfa_no": [118, 144],
+          "icerik": {
+            "isimler": [
+              { "arapca": "مطبخ", "turkce": "Mutfak" },
+              { "arapca": "منظر", "turkce": "Manzara" },
+              { "arapca": "ثلاجة", "turkce": "Buzdolabı" },
+              { "arapca": "فرن", "turkce": "Fırın" },
+              { "arapca": "إيجار", "turkce": "Kira" },
+              { "arapca": "سجادة", "turkce": "Halı" },
+              { "arapca": "طفولة", "turkce": "Çocukluk" },
+              { "arapca": "شقة", "turkce": "Apartman dairesi" },
+              { "arapca": "مذكرات", "turkce": "Günlük / Hatırat" },
+              { "arapca": "لوحة", "turkce": "Tablo / Resim" },
+              { "arapca": "جار / جيران", "turkce": "Komşu / Komşular" },
+              { "arapca": "خزانة / خزائن", "turkce": "Dolap / Dolaplar" },
+              { "arapca": "نافذة / نوافذ", "turkce": "Pencere / Pencereler" },
+              { "arapca": "ستارة / ستائر", "turkce": "Perde / Perdeler" },
+              { "arapca": "أريكة / أرائك", "turkce": "Koltuk / Koltuklar" },
+              { "arapca": "جدار / جدران", "turkce": "Duvar / Duvarlar" },
+              { "arapca": "سرير / أسرة", "turkce": "Yatak / Yataklar" },
+              { "arapca": "غرفة / غرف", "turkce": "Oda / Odalar" },
+              { "arapca": "حيّ", "turkce": "Mahalle" },
+              { "arapca": "السطح", "turkce": "Çatı / Teras" },
+              { "arapca": "حمام", "turkce": "Banyo" },
+              { "arapca": "مصباح", "turkce": "Lamba / Işık" },
+              { "arapca": "مصعد", "turkce": "Asansör" },
+              { "arapca": "درج", "turkce": "Merdiven" },
+              { "arapca": "علبة الكبريت", "turkce": "Kibrit kutusu" },
+              { "arapca": "غرفة الضيوف", "turkce": "Misafir odası" },
+              { "arapca": "غرفة النوم", "turkce": "Yatak odası" },
+              { "arapca": "غرفة المعيشة / الجلوس", "turkce": "Oturma odası" }
+            ],
+            "sifatlar": [
+              { "arapca": "واسع", "turkce": "Geniş" },
+              { "arapca": "ضيق", "turkce": "Dar" },
+              { "arapca": "مرتفع", "turkce": "Yüksek" },
+              { "arapca": "منخفض", "turkce": "Alçak" },
+              { "arapca": "هادئ", "turkce": "Sakin" },
+              { "arapca": "مزعج", "turkce": "Gürültülü / Rahatsız edici" },
+              { "arapca": "مفروش", "turkce": "Eşyalı / Döşeli" },
+              { "arapca": "ملونة", "turkce": "Renkli" },
+              { "arapca": "مشمس", "turkce": "Güneşli" },
+              { "arapca": "سيء", "turkce": "Kötü" },
+              { "arapca": "أسوأ", "turkce": "Daha kötü" },
+              { "arapca": "الأسوأ", "turkce": "En kötü" }
+            ],
+            "kaliplar": [
+              { "arapca": "مطلة على", "turkce": "Bakıyor / Manzaralı" },
+              { "arapca": "كم أشتاق إليها", "turkce": "Ona ne kadar da özlem duyuyorum" },
+              { "arapca": "راحة النفسية", "turkce": "Ruhsal huzur / Rahatlık" },
+              { "arapca": "وحدي", "turkce": "Tek başıma" },
+              { "arapca": "الطابق الأرضي", "turkce": "Zemin kat" },
+              { "arapca": "تحت ≠ فوق", "turkce": "Altında ≠ Üstünde" },
+              { "arapca": "بيع ≠ شراء", "turkce": "Satış ≠ Satın alma" }
+            ]
+          }
+        }
+      ]
+    };
+
+    // --- STATE MANAGEMENT ---
+    let wordPool = [];         // Filtrelenmiş mevcut kelime listesi
+    let currentMode = 'flashcards'; // 'flashcards', 'quiz', 'matching'
+    let currentDirection = 'ar-tr'; // 'ar-tr' (Arapça -> Türkçe) veya 'tr-ar'
+
+    // Flashcard State
+    let flashcardIndex = 0;
+    let isFlipped = false;
+
+    // Quiz State
+    let quizQuestions = [];
+    let quizIndex = 0;
+    let quizCorrectCount = 0;
+    let quizTotalQuestionsCount = 10;
+
+    // Matching State
+    let matchingSelectedCard = null;
+    let matchingMatchedPairsCount = 0;
+    let totalPairsInGame = 8; // Default 4x4 matching
+
+    // --- APPLICATION LOGIC ---
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Kelimeleri tek bir havuzda birleştir ve normalize et
+      onFilterChange();
+    });
+
+    // Filtreler değiştiğinde tetiklenen ana fonksiyon
+    function onFilterChange() {
+      const selectedUnit = document.getElementById("unit-select").value;
+      const selectedCategory = document.getElementById("category-select").value;
+
+      let tempPool = [];
+
+      database.uniteler.forEach(unite => {
+        // Ünite filtresi kontrolü
+        if (selectedUnit === 'all' || unite.unite_no == selectedUnit) {
+          
+          Object.keys(unite.icerik).forEach(categoryKey => {
+            // Kategori normalleştirme eşleşmesi
+            let mappedCategory = 'diğer';
+            if (categoryKey.includes('isim')) mappedCategory = 'isimler';
+            else if (categoryKey.includes('fiil')) mappedCategory = 'fiiller';
+            else if (categoryKey.includes('sifat') || categoryKey.includes('sıklık') || categoryKey.includes('zarf')) mappedCategory = 'sifatlar';
+            else if (categoryKey.includes('kalip') || categoryKey.includes('kalıp')) mappedCategory = 'kaliplar';
+
+            // Kategori filtre kontrolü
+            if (selectedCategory === 'all' || selectedCategory === mappedCategory) {
+              unite.icerik[categoryKey].forEach(item => {
+                tempPool.push({
+                  arapca: item.arapca.trim(),
+                  turkce: item.turkce.trim(),
+                  unite: unite.unite_no,
+                  kategori: mappedCategory
+                });
+              });
+            }
+          });
+        }
+      });
+
+      // Yinelenen kelimeleri temizle (Arapça baz alınarak)
+      const uniqueMap = new Map();
+      tempPool.forEach(item => {
+        uniqueMap.set(item.arapca + '___' + item.turkce, item);
+      });
+      wordPool = Array.from(uniqueMap.values());
+
+      // Arayüzü güncelle
+      document.getElementById("pool-count-text").innerHTML = `Havuzda şu an filtrelerinize uygun <strong>${wordPool.length}</strong> kelime var.`;
+
+      if (wordPool.length === 0) {
+        document.getElementById("empty-state").classList.remove("hidden");
+        document.getElementById("flashcards-view").classList.add("hidden");
+        document.getElementById("quiz-view").classList.add("hidden");
+        document.getElementById("matching-view").classList.add("hidden");
+      } else {
+        document.getElementById("empty-state").classList.add("hidden");
+        // Mevcut aktif modu tetikle
+        switchMode(currentMode);
+      }
+    }
+
+    // Yön Değiştirme
+    function setDirection(dir) {
+      currentDirection = dir;
+      const arTrBtn = document.getElementById("dir-ar-tr-btn");
+      const trArBtn = document.getElementById("dir-tr-ar-btn");
+
+      if (dir === 'ar-tr') {
+        arTrBtn.className = "py-2 text-xs font-medium rounded-lg text-center bg-white text-slate-800 shadow-sm";
+        trArBtn.className = "py-2 text-xs font-medium rounded-lg text-center text-slate-600 hover:text-slate-900";
+      } else {
+        trArBtn.className = "py-2 text-xs font-medium rounded-lg text-center bg-white text-slate-800 shadow-sm";
+        arTrBtn.className = "py-2 text-xs font-medium rounded-lg text-center text-slate-600 hover:text-slate-900";
+      }
+
+      // Mevcut modu yeniden yükle
+      if (currentMode === 'flashcards' && wordPool.length > 0) {
+        showFlashcard();
+      } else if (currentMode === 'quiz' && wordPool.length > 0) {
+        restartQuiz();
+      }
+    }
+
+    // Mod Değiştirme
+    function switchMode(mode) {
+      currentMode = mode;
+      
+      // Buton tasarımlarını güncelle
+      const modes = ['flashcards', 'quiz', 'matching'];
+      modes.forEach(m => {
+        const btn = document.getElementById(`mode-${m}-btn`);
+        if (m === mode) {
+          btn.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-white text-indigo-600 shadow-sm";
+        } else {
+          btn.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-slate-600 hover:text-slate-900";
+        }
+      });
+
+      // View alanlarını gizle / göster
+      document.getElementById("flashcards-view").classList.add("hidden");
+      document.getElementById("quiz-view").classList.add("hidden");
+      document.getElementById("matching-view").classList.add("hidden");
+
+      if (wordPool.length === 0) {
+        document.getElementById("empty-state").classList.remove("hidden");
+        return;
+      }
+
+      if (mode === 'flashcards') {
+        document.getElementById("flashcards-view").classList.remove("hidden");
+        flashcardIndex = 0;
+        showFlashcard();
+      } else if (mode === 'quiz') {
+        document.getElementById("quiz-view").classList.remove("hidden");
+        restartQuiz();
+      } else if (mode === 'matching') {
+        document.getElementById("matching-view").classList.remove("hidden");
+        initMatchingGame();
+      }
+    }
+
+    // --- MOD 1: FLASHCARDS ÇALIŞMA ALANI ---
+
+    function showFlashcard() {
+      if (wordPool.length === 0) return;
+      
+      // Kart döndürülmüşse düzelt
+      const cardEl = document.getElementById("flashcard");
+      cardEl.classList.remove("rotate-y-180");
+      isFlipped = false;
+
+      const item = wordPool[flashcardIndex];
+
+      // Soru yönüne göre yerleşim
+      if (currentDirection === 'ar-tr') {
+        document.getElementById("card-front-text").innerText = item.arapca;
+        document.getElementById("card-front-text").className = "text-4xl md:text-5xl font-bold font-arabic leading-relaxed text-slate-800 py-4";
+        document.getElementById("card-front-type").innerText = `Arapça (${getFriendlyCategoryName(item.kategori)})`;
+
+        document.getElementById("card-back-text").innerText = item.turkce;
+        document.getElementById("card-back-type").innerText = "Türkçe Anlamı";
+      } else {
+        document.getElementById("card-front-text").innerText = item.turkce;
+        document.getElementById("card-front-text").className = "text-2xl md:text-3xl font-semibold leading-normal text-slate-800 py-4";
+        document.getElementById("card-front-type").innerText = `Türkçe (${getFriendlyCategoryName(item.kategori)})`;
+
+        document.getElementById("card-back-text").innerText = item.arapca;
+        document.getElementById("card-back-type").innerText = "Arapça Karşılığı";
+      }
+
+      // Sayacı güncelle
+      document.getElementById("card-index-current").innerText = flashcardIndex + 1;
+      document.getElementById("card-index-total").innerText = wordPool.length;
+    }
+
+    function toggleCardFlip() {
+      const cardEl = document.getElementById("flashcard");
+      if (isFlipped) {
+        cardEl.classList.remove("rotate-y-180");
+      } else {
+        cardEl.classList.add("rotate-y-180");
+      }
+      isFlipped = !isFlipped;
+    }
+
+    function nextCard() {
+      if (wordPool.length === 0) return;
+      flashcardIndex = (flashcardIndex + 1) % wordPool.length;
+      showFlashcard();
+    }
+
+    function prevCard() {
+      if (wordPool.length === 0) return;
+      flashcardIndex = (flashcardIndex - 1 + wordPool.length) % wordPool.length;
+      showFlashcard();
+    }
+
+    function shuffleFlashcards() {
+      if (wordPool.length === 0) return;
+      wordPool.sort(() => Math.random() - 0.5);
+      flashcardIndex = 0;
+      showFlashcard();
+    }
+
+    // --- MOD 2: QUIZ (TEST) ÇALIŞMA ALANI ---
+
+    function restartQuiz() {
+      if (wordPool.length === 0) return;
+      
+      // Soru sayısını havuzun boyutuna göre optimize et
+      quizTotalQuestionsCount = Math.min(10, wordPool.length);
+      
+      // Havuzdan rastgele sorular seç
+      const shuffled = [...wordPool].sort(() => Math.random() - 0.5);
+      quizQuestions = shuffled.slice(0, quizTotalQuestionsCount);
+      
+      quizIndex = 0;
+      quizCorrectCount = 0;
+
+      showQuizQuestion();
+    }
+
+    function showQuizQuestion() {
+      if (quizQuestions.length === 0) return;
+
+      const currentQuestion = quizQuestions[quizIndex];
+      const nextBtn = document.getElementById("quiz-next-btn");
+      nextBtn.classList.add("hidden");
+
+      // Progress bar güncellemesi
+      document.getElementById("quiz-progress-text").innerText = `${quizIndex + 1}/${quizTotalQuestionsCount}`;
+      document.getElementById("quiz-progress-bar").style.width = `${((quizIndex + 1) / quizTotalQuestionsCount) * 100}%`;
+      document.getElementById("quiz-score-text").innerText = `${quizCorrectCount} Doğru`;
+
+      // Soruyu yönüne göre yazdır
+      const questionTextEl = document.getElementById("quiz-question-word");
+      if (currentDirection === 'ar-tr') {
+        questionTextEl.innerText = currentQuestion.arapca;
+        questionTextEl.className = "text-4xl md:text-5xl font-bold leading-relaxed text-slate-900 font-arabic";
+      } else {
+        questionTextEl.innerText = currentQuestion.turkce;
+        questionTextEl.className = "text-2xl md:text-3xl font-semibold leading-normal text-slate-900";
+      }
+
+      // Seçenekleri oluştur (1 doğru, 3 yanlış şık)
+      let options = [currentQuestion];
+      const distractors = wordPool.filter(w => w.arapca !== currentQuestion.arapca);
+      
+      // Şıkları karıştırıp ekle
+      distractors.sort(() => Math.random() - 0.5);
+      for (let i = 0; i < Math.min(3, distractors.length); i++) {
+        options.push(distractors[i]);
+      }
+      
+      // Seçeneklerin kendisini de karıştır
+      options.sort(() => Math.random() - 0.5);
+
+      const choicesContainer = document.getElementById("quiz-choices-container");
+      choicesContainer.innerHTML = '';
+
+      options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "w-full text-left px-5 py-4 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all rounded-2xl flex items-center justify-between group";
+        
+        let labelText = currentDirection === 'ar-tr' ? option.turkce : option.arapca;
+        let arabicSpanClass = currentDirection === 'tr-ar' ? "font-arabic text-xl font-medium" : "text-sm";
+
+        btn.innerHTML = `
+          <span class="${arabicSpanClass} text-slate-700 font-medium">${labelText}</span>
+          <span class="w-6 h-6 rounded-full border border-slate-200 flex items-center justify-center text-xs text-transparent group-hover:border-slate-300 bg-white"><i class="fa-solid fa-check"></i></span>
+        `;
+
+        btn.onclick = () => handleChoiceSelection(btn, option, currentQuestion);
+        choicesContainer.appendChild(btn);
+      });
+    }
+
+    function handleChoiceSelection(clickedBtn, selectedOption, correctOption) {
+      const choicesContainer = document.getElementById("quiz-choices-container");
+      const buttons = choicesContainer.querySelectorAll("button");
+      
+      // Tıklamaları kilitle
+      buttons.forEach(btn => btn.disabled = true);
+
+      const isCorrect = selectedOption.arapca === correctOption.arapca;
+
+      if (isCorrect) {
+        quizCorrectCount++;
+        clickedBtn.className = "w-full text-left px-5 py-4 bg-emerald-50 border-2 border-emerald-500 rounded-2xl flex items-center justify-between shadow-sm transition-all";
+        clickedBtn.querySelector("span:last-child").className = "w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-xs text-white";
+      } else {
+        clickedBtn.className = "w-full text-left px-5 py-4 bg-rose-50 border-2 border-rose-500 rounded-2xl flex items-center justify-between shadow-sm transition-all";
+        clickedBtn.querySelector("span:last-child").innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+        clickedBtn.querySelector("span:last-child").className = "w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center text-xs text-white";
+
+        // Doğru şıkkı göster
+        buttons.forEach(btn => {
+          // Butondaki metni doğru şıkla karşılaştır
+          const matchTarget = currentDirection === 'ar-tr' ? correctOption.turkce : correctOption.arapca;
+          if (btn.querySelector("span:first-child").innerText === matchTarget) {
+            btn.className = "w-full text-left px-5 py-4 bg-emerald-50 border-2 border-emerald-500 rounded-2xl flex items-center justify-between transition-all";
+            btn.querySelector("span:last-child").className = "w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-xs text-white";
+          }
+        });
+      }
+
+      document.getElementById("quiz-score-text").innerText = `${quizCorrectCount} Doğru`;
+      document.getElementById("quiz-next-btn").classList.remove("hidden");
+    }
+
+    function nextQuizQuestion() {
+      quizIndex++;
+      if (quizIndex < quizTotalQuestionsCount) {
+        showQuizQuestion();
+      } else {
+        // Sonuç ekranı
+        const choicesContainer = document.getElementById("quiz-choices-container");
+        choicesContainer.innerHTML = '';
+        document.getElementById("quiz-question-word").innerText = "Sınav Tamamlandı!";
+        document.getElementById("quiz-question-word").className = "text-2xl font-bold text-slate-800";
+        
+        const accuracy = Math.round((quizCorrectCount / quizTotalQuestionsCount) * 100);
+        choicesContainer.innerHTML = `
+          <div class="col-span-2 text-center p-6 bg-slate-50 border border-slate-100 rounded-2xl space-y-3">
+            <p class="text-sm text-slate-500">Skorunuz ve Başarı Oranınız:</p>
+            <h4 class="text-3xl font-extrabold text-indigo-600">${quizCorrectCount} / ${quizTotalQuestionsCount}</h4>
+            <p class="text-xs font-semibold text-slate-400">Başarı Yüzdesi: %${accuracy}</p>
+          </div>
+        `;
+        document.getElementById("quiz-next-btn").classList.add("hidden");
+      }
+    }
+
+
+    // --- MOD 3: MATCHING (EŞLEŞTİRME) ÇALIŞMA ALANI ---
+
+    function initMatchingGame() {
+      if (wordPool.length === 0) return;
+
+      const gridContainer = document.getElementById("matching-grid");
+      const winScreen = document.getElementById("matching-win-screen");
+      
+      gridContainer.classList.remove("hidden");
+      winScreen.classList.add("hidden");
+
+      matchingSelectedCard = null;
+      matchingMatchedPairsCount = 0;
+
+      // Kelime sayısına göre eşleştirme sayısını belirle
+      totalPairsInGame = Math.min(8, wordPool.length);
+
+      // Rastgele kelimeleri seç
+      const shuffledPool = [...wordPool].sort(() => Math.random() - 0.5);
+      const selectedWords = shuffledPool.slice(0, totalPairsInGame);
+
+      // Kartları oluştur (Her çift için 1 Arapça, 1 Türkçe kart)
+      let cards = [];
+      selectedWords.forEach((word, index) => {
+        cards.push({ id: index, text: word.arapca, type: 'arapca' });
+        cards.push({ id: index, text: word.turkce, type: 'turkce' });
+      });
+
+      // Kartları karıştır
+      cards.sort(() => Math.random() - 0.5);
+
+      // DOM elemanlarını oluştur
+      gridContainer.innerHTML = '';
+      cards.forEach(card => {
+        const cardDiv = document.createElement("div");
+        cardDiv.className = "bg-white border border-slate-200 hover:border-indigo-400 p-4 rounded-xl cursor-pointer flex items-center justify-center text-center transition-all min-h-[70px] select-none hover:shadow-sm";
+        
+        if (card.type === 'arapca') {
+          cardDiv.innerHTML = `<span class="font-arabic text-lg font-bold text-slate-800 leading-relaxed">${card.text}</span>`;
+        } else {
+          cardDiv.innerHTML = `<span class="text-sm font-medium text-slate-600">${card.text}</span>`;
+        }
+
+        cardDiv.onclick = () => handleMatchingCardClick(cardDiv, card);
+        gridContainer.appendChild(cardDiv);
+      });
+    }
+
+    function handleMatchingCardClick(cardDiv, cardData) {
+      // Zaten eşleşmiş veya halihazırda seçilmişse işlem yapma
+      if (cardDiv.classList.contains('bg-emerald-100') || cardDiv.classList.contains('border-indigo-600')) {
+        return;
+      }
+
+      if (!matchingSelectedCard) {
+        // İlk kart seçimi
+        matchingSelectedCard = { el: cardDiv, data: cardData };
+        cardDiv.className = "bg-indigo-50 border-2 border-indigo-600 p-4 rounded-xl cursor-pointer flex items-center justify-center text-center transition-all min-h-[70px] select-none shadow-sm";
+      } else {
+        // İkinci kart seçimi
+        const firstCard = matchingSelectedCard;
+        
+        // Aynı karta tekrar basıldıysa seçimi kaldır
+        if (firstCard.el === cardDiv) {
+          cardDiv.className = "bg-white border border-slate-200 hover:border-indigo-400 p-4 rounded-xl cursor-pointer flex items-center justify-center text-center transition-all min-h-[70px] select-none";
+          matchingSelectedCard = null;
+          return;
+        }
+
+        // Doğru eşleşme kontrolü (id aynı ama diller farklı olmalı)
+        if (firstCard.data.id === cardData.id && firstCard.data.type !== cardData.type) {
+          // BAŞARILI EŞLEŞME
+          firstCard.el.className = "bg-emerald-500 text-white p-4 rounded-xl flex items-center justify-center text-center transition-all min-h-[70px] select-none scale-95 opacity-40 pointer-events-none";
+          cardDiv.className = "bg-emerald-500 text-white p-4 rounded-xl flex items-center justify-center text-center transition-all min-h-[70px] select-none scale-95 opacity-40 pointer-events-none";
+          
+          matchingMatchedPairsCount++;
+          matchingSelectedCard = null;
+
+          if (matchingMatchedPairsCount === totalPairsInGame) {
+            // Tüm kartlar bittiğinde
+            setTimeout(() => {
+              document.getElementById("matching-grid").classList.add("hidden");
+              document.getElementById("matching-win-screen").classList.remove("hidden");
+            }, 600);
+          }
+        } else {
+          // HATALI EŞLEŞME
+          cardDiv.className = "bg-rose-50 border-2 border-rose-500 p-4 rounded-xl flex items-center justify-center text-center min-h-[70px] select-none shake-animation";
+          firstCard.el.className = "bg-rose-50 border-2 border-rose-500 p-4 rounded-xl flex items-center justify-center text-center min-h-[70px] select-none shake-animation";
+
+          matchingSelectedCard = null;
+
+          // Hata efektinden sonra kartları eski haline getir
+          setTimeout(() => {
+            if (!firstCard.el.classList.contains('bg-emerald-500')) {
+              firstCard.el.className = "bg-white border border-slate-200 hover:border-indigo-400 p-4 rounded-xl cursor-pointer flex items-center justify-center text-center transition-all min-h-[70px] select-none";
+            }
+            if (!cardDiv.classList.contains('bg-emerald-500')) {
+              cardDiv.className = "bg-white border border-slate-200 hover:border-indigo-400 p-4 rounded-xl cursor-pointer flex items-center justify-center text-center transition-all min-h-[70px] select-none";
+            }
+          }, 800);
+        }
+      }
+    }
+
+
+    // --- UTILS (YARDIMCI ARAÇLAR) ---
+
+    function getFriendlyCategoryName(key) {
+      switch(key) {
+        case 'isimler': return 'İsim';
+        case 'fiiller': return 'Fiil';
+        case 'sifatlar': return 'Sıfat / Zarf';
+        case 'kaliplar': return 'Kalıp İfade';
+        default: return 'Diğer';
+      }
+    }
+  </script>
+</body>
+</html>
